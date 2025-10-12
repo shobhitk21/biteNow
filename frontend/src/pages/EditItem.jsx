@@ -1,18 +1,20 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { IoArrowBack } from "react-icons/io5";
 import { useDispatch, useSelector } from 'react-redux';
 import { FaUtensils } from "react-icons/fa";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { setMyShopData } from '../redux/ownerSlice';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { ClipLoader } from 'react-spinners';
 
-const AddItem = () => {
+const EditItem = () => {
     const navigate = useNavigate()
     const { myShopData } = useSelector(state => state.owner)
     const dispatch = useDispatch()
+    const { itemId } = useParams()
 
+    const [currentItem, setCurrentItem] = useState(null)
     const [name, setName] = useState("")
     const [frontendImage, setFrontendImage] = useState(null)
     const [backendImage, setBackendImage] = useState(null)
@@ -41,7 +43,7 @@ const AddItem = () => {
             if (backendImage) {
                 formData.append("image", backendImage)
             }
-            const { data } = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/item/add-item`, formData, { withCredentials: true })
+            const { data } = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/item/edit-item/${itemId}`, formData, { withCredentials: true })
             dispatch(setMyShopData(data))
             setLoading(false)
             navigate("/")
@@ -49,8 +51,30 @@ const AddItem = () => {
             console.log(error);
             toast.error(error.response?.data?.message);
             setLoading(false)
+
         }
     }
+
+    useEffect(() => {
+        const handleGetItemById = async () => {
+            try {
+                const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/item/get-by-id/${itemId}`, { withCredentials: true })
+                setCurrentItem(data)
+            } catch (error) {
+                console.log(error);
+                toast.error(error.response?.data?.message);
+            }
+        }
+        handleGetItemById()
+    }, [itemId])
+
+    useEffect(() => {
+        setName(currentItem?.name || ""),
+            setFrontendImage(currentItem?.image || ""),
+            setPrice(currentItem?.price || 0),
+            setCategory(currentItem?.category || ""),
+            setFoodType(currentItem?.foodType || "")
+    }, [currentItem])
 
 
     return (
@@ -65,7 +89,7 @@ const AddItem = () => {
                         <FaUtensils className='text-primaryColor h-16 w-16' />
                     </div>
                     <div className='text-3xl font-extrabold text-gray-900'>
-                        Add Food Item
+                        Edit Food Item
                     </div>
                 </div>
 
@@ -130,7 +154,7 @@ const AddItem = () => {
                         </select>
                     </div>
 
-                    <button onClick={handleSubmit} className='w-full bg-primaryColor text-white px-6 py-3 rounded-lg cursor-pointer font-semibold shadow-md hover:bg-hoverColor hover:shadow-lg transition-all duration-200' disabled={loading}>
+                    <button onClick={handleSubmit} className='w-full bg-primaryColor text-white px-6 py-3 rounded-lg cursor-pointer font-semibold shadow-md hover:bg-hoverColor hover:shadow-lg transition-all duration-200 ' disabled={loading}>
                         {loading ? <ClipLoader size={20} color='white' /> : "Save"}
                     </button>
 
@@ -143,4 +167,4 @@ const AddItem = () => {
     )
 }
 
-export default AddItem
+export default EditItem

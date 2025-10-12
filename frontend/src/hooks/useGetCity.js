@@ -1,6 +1,5 @@
 import axios from "axios"
 import { useEffect, useContext } from "react"
-import { AppContext } from "../context/AppContext"
 import { useDispatch, useSelector } from "react-redux"
 import { setCurrentAddress, setCurrentCity, setCurrentState } from "../redux/userSlice"
 
