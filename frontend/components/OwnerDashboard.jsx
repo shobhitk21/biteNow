@@ -32,7 +32,7 @@ const OwnerDashboard = () => {
         </div>
       }
       {
-        myShopData && <div className='w-full flex flex-col items-center gap-6 px-4 sm:px-6 '>
+        myShopData && <div className='w-full flex flex-col items-center gap-6 px-4 sm:px-6 py-4'>
           <h1 className='text-2xl sm:text-3xl text-gray-900 flex items-center gap-3 mt-8 text-center '> <FaUtensils className='text-primaryColor w-12 h-12' />Welcome to {myShopData.name}</h1>
 
           <div className='bg-white shadow-lg rounded-xl overflow-hidden border border-orange-100 hover:shadow-2xl transition-all duration-300 w-full max-w-3xl relative'>

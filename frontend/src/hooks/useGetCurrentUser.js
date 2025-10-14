@@ -1,6 +1,5 @@
 import axios from "axios"
-import { useEffect, useContext } from "react"
-import { AppContext } from "../context/AppContext"
+import { useEffect } from "react"
 import { useDispatch } from "react-redux"
 import { setUserData } from "../redux/userSlice"
 

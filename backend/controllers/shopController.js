@@ -43,5 +43,20 @@ const getMyShop = async (req, res) => {
 
 }
 
+const getShopByCity = async (req, res) => {
+    try {
+        const { city } = req.params
+        const shops = await Shop.find({ city: { $regex: new RegExp(`^${city}$`, "i") } }).populate("items")
+        if (!shops) {
+            return res.status(400).json({ message: "No shop found in your area" })
+        }
+        return res.status(200).json(shops)
 
-module.exports = { createAndEditShop, getMyShop }
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: error.message })
+    }
+}
+
+
+module.exports = { createAndEditShop, getMyShop, getShopByCity }
