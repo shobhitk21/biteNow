@@ -14,6 +14,8 @@ import AddItem from './pages/AddItem.jsx'
 import EditItem from './pages/EditItem.jsx'
 import useGetShopByCity from './hooks/useGetShopByCity.js'
 import useGetItemByCity from './hooks/useGetItemByCity.js'
+import CartPage from './pages/CartPage.jsx'
+import CheckOut from './pages/CheckOut.jsx'
 
 function App() {
   useGetCurrentUser()
@@ -34,6 +36,9 @@ function App() {
         <Route path='/create-edit-shop' element={userData ? <CreateEditShop /> : <Navigate to="/signin" />} />
         <Route path='/add-item' element={userData ? <AddItem /> : <Navigate to="/signin" />} />
         <Route path='/edit-item/:itemId' element={userData ? <EditItem /> : <Navigate to="/signin" />} />
+        <Route path='/cart' element={userData ? <CartPage /> : <Navigate to="/signin" />} />
+        <Route path='/checkOut' element={userData ? <CheckOut /> : <Navigate to="/signin" />} />
+
 
       </Routes>
     </>

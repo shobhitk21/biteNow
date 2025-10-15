@@ -36,8 +36,8 @@ const UserDashboard = () => {
 
 
   useEffect(() => {
-    const cateEl = cateScrollRef.current;
-    const shopEl = shopScrollRef.current;
+    const cateEl = cateScrollRef?.current;
+    const shopEl = shopScrollRef?.current;
 
     const handleCateScroll = () => updateButton(cateScrollRef, setShowLeftCateButton, setShowRightCateButton);
     const handleShopScroll = () => updateButton(shopScrollRef, setShowLeftShopButton, setShowRightShopButton);
@@ -53,8 +53,8 @@ const UserDashboard = () => {
     }
 
     return () => {
-      if (cateEl) cateEl.removeEventListener("scroll", handleCateScroll);
-      if (shopEl) shopEl.removeEventListener("scroll", handleShopScroll);
+      if (cateEl) cateEl?.removeEventListener("scroll", handleCateScroll);
+      if (shopEl) shopEl?.removeEventListener("scroll", handleShopScroll);
     };
   }, [categories, shopsInMyCity]);
 
