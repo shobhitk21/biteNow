@@ -1,8 +1,8 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
-import UserDashboard from '../../components/UserDashboard'
-import OwnerDashboard from '../../components/OwnerDashboard'
-import DeliverBoy from '../../components/DeliverBoy'
+import UserDashboard from '../components/UserDashboard'
+import OwnerDashboard from '../components/OwnerDashboard'
+import DeliverBoy from '../components/DeliveryBoy'
 
 const Home = () => {
     const userData = useSelector(state => state.user)

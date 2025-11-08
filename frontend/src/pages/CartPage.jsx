@@ -1,8 +1,8 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import { IoArrowBack } from "react-icons/io5";
-import CardItemCard from '../../components/CardItemCard';
+import { IoIosArrowRoundBack } from "react-icons/io";
+import CardItemCard from '../components/CardItemCard';
 
 
 const CartPage = () => {
@@ -13,8 +13,8 @@ const CartPage = () => {
     <div className='min-h-screen bg-[#fff9f6] flex justify-center p-6'>
       <div className='w-full max-w-[800px]'>
         <div className='flex items-center gap-[20px] mb-6'>
-          <div className='z-[10]' onClick={() => navigate("/")}>
-            <IoArrowBack size={35} className='text-[#ff4d2d]' />
+          <div className='z-[10] cursor-pointer' onClick={() => navigate("/")}>
+            <IoIosArrowRoundBack size={35} className='text-[#ff4d2d]' />
           </div>
         </div>
         {cartItems?.length == 0 ? (
@@ -32,7 +32,11 @@ const CartPage = () => {
             <span className='text-xl font-bold text-primaryColor'>₹{totalAmount}</span>
           </div>
           <div className='mt-4 flex justify-end'>
-            <button className='bg-primaryColor text-white px-6 py-3 rounded-lg text-lg font-medium cursor-pointer hover:bg-hoverColor transition'>Buy Now</button>
+            <button
+              className='bg-primaryColor text-white px-6 py-3 rounded-lg text-lg font-medium cursor-pointer hover:bg-hoverColor transition'
+              onClick={() => navigate('/checkout')}>
+              Buy Now
+            </button>
           </div>
         </>
         )}

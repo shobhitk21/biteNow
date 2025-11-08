@@ -26,10 +26,9 @@ const SignIn = () => {
         event.preventDefault()
         try {
             const { data } = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/signin`, { email, password }, { withCredentials: true })
-            dispatch(setUserData(data))
+            dispatch(setUserData(data.user))
             toast.success(data.message);
             setLoading(false)
-
 
         } catch (error) {
             toast.error(error.response?.data?.message);
@@ -42,7 +41,6 @@ const SignIn = () => {
             <div className='bg-white rounded-xl shadow-lg w-full max-w-md px-8 py-6 border-[1px] border-borderColor'>
                 <h1 className='text-3xl font-bold mb-2 text-primaryColor'>Vingo</h1>
                 <p className='text-gray-500 mb-5 text-sm'>Create account to get started with delicious food deliveries</p>
-
 
                 <div className='mb-4'>
                     <label className='block text-gray-700 font-medium mb-1'>Email</label>

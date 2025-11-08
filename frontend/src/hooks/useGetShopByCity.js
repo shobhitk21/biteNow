@@ -14,7 +14,6 @@ const useGetShopByCity = () => {
             try {
                 const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/shop/get-by-city/${currentCity}`, { withCredentials: true })
                 dispatch(setShopsInMyCity(data))
-                console.log(data);
 
             } catch (error) {
                 console.log(error);

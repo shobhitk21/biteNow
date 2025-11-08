@@ -8,6 +8,7 @@ const cors = require('cors');
 const userRouter = require('./routes/userRoutes.js');
 const shopRouter = require('./routes/shopRoutes.js');
 const itemRouter = require('./routes/itemRoutes.js');
+const orderRouter = require('./routes/orderRoutes.js');
 
 
 
@@ -29,7 +30,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/shop", shopRouter);
 app.use("/api/item", itemRouter);
-
+app.use("/api/order", orderRouter);
 
 
 

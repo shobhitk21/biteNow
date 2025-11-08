@@ -29,9 +29,9 @@ const SignUp = () => {
         event.preventDefault()
         try {
             const { data } = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/signup`, { fullName, email, password, mobile, role }, { withCredentials: true })
-            dispatch(setUserData(data))
+            dispatch(setUserData(data.user))
             setLoading(false)
-            toast.success(data.message);
+            toast.success(data.message)
             setLoading(false)
         } catch (error) {
             toast.error(error.response?.data?.message);
@@ -57,7 +57,7 @@ const SignUp = () => {
                 mobile,
                 role,
             }, { withCredentials: true })
-            dispatch(setUserData(data))
+            dispatch(setUserData(data.user))
         } catch (error) {
             toast.error(error.response?.data?.message);
         }

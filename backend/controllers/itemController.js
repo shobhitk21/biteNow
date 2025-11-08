@@ -1,4 +1,5 @@
 const uploadOnCloudinary = require("../config/cloudinary");
+const { create } = require("../models/deliveryAssignmentModel");
 const Item = require("../models/itemModels");
 const Shop = require("../models/shopModel");
 
@@ -119,4 +120,57 @@ const getItemByCity = async (req, res) => {
 
 }
 
-module.exports = { addItem, editItem, getItemById, deleteItem, getItemByCity }
+const getItemsByShop = async (req, res) => {
+    try {
+        const { shopId } = req.params
+        const shop = await Shop.findById(shopId).populate("items")
+        if (!shop) {
+            return res.status(400).json({ message: "No shop found" })
+        }
+        return res.status(200).json({ shop, items: shop.items })
+
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: error.message })
+    }
+
+}
+
+const searchItems = async (req, res) => {
+    try {
+        const { query, city } = req.query;
+        if (!query || !city) {
+            return res.status(400).json({ message: "Missing query or city" })
+        }
+
+        const shops = await Shop.find({
+            city: { $regex: new RegExp(`^${city}$`, "i") }
+        }).populate("items");
+
+        if (!shops || shops.length === 0) {
+            return res.status(400).json({ message: "No shop found in your area" })
+        }
+
+        const shopIds = shops.map(s => s._id);
+
+        const items = await Item.find({
+            shop: { $in: shopIds },
+            $or: [
+                { name: { $regex: query, $options: "i" } },
+                { category: { $regex: query, $options: "i" } }
+            ]
+        }).populate("shop", "name image")
+            .limit(40)
+            .sort({ createdAt: -1 })
+
+        return res.status(200).json(items)
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+
+module.exports = { addItem, editItem, getItemById, deleteItem, getItemByCity, getItemsByShop, searchItems }
