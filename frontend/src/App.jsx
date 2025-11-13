@@ -6,7 +6,7 @@ import { Route, Routes, Navigate } from 'react-router-dom'
 import ForgotPassword from './pages/ForgotPassword.jsx'
 import useGetCurrentUser from './hooks/useGetCurrentUser.js'
 import Home from './pages/Home.jsx'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import useGetCity from './hooks/useGetCity.js'
 import useGetMyShop from './hooks/useGetMyShop.js'
 import CreateEditShop from './pages/CreateEditShop.jsx'
@@ -22,17 +22,40 @@ import useGetMyOrders from './hooks/useGetMyOrders.js'
 import useUpdateLocation from './hooks/useUpdateLocation.js'
 import TrackOrderPage from './pages/TrackOrderPage.jsx'
 import Shop from './pages/Shop.jsx'
+import { setSocket } from './redux/userSlice.js'
+import { useEffect } from 'react'
+import { io } from 'socket.io-client'
 
 function App() {
 
   const { loading } = useGetCurrentUser()
+  const dispatch = useDispatch()
   useGetCity()
   useGetMyShop()
   useGetShopByCity()
   useGetItemByCity()
   useGetMyOrders()
   useUpdateLocation()
+
   const { userData } = useSelector(state => state.user)
+  useEffect(() => {
+    if (!userData?._id) return
+
+    const socketInstance = io(import.meta.env.VITE_BACKEND_URL, {
+      withCredentials: true,
+    })
+
+    dispatch(setSocket(socketInstance))
+
+    socketInstance.on('connect', () => {
+      socketInstance.emit('identity', { userId: userData._id })
+    })
+
+    return () => {
+      socketInstance.disconnect()
+    }
+  }, [userData?._id])
+
   if (loading) return <div className="text-center mt-10 text-lg font-semibold">Loading...</div>
 
   return (
@@ -60,3 +83,8 @@ function App() {
 }
 
 export default App
+
+
+
+
+

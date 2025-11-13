@@ -14,8 +14,9 @@ const CartPage = () => {
       <div className='w-full max-w-[800px]'>
         <div className='flex items-center gap-[20px] mb-6'>
           <div className='z-[10] cursor-pointer' onClick={() => navigate("/")}>
-            <IoIosArrowRoundBack size={35} className='text-[#ff4d2d]' />
+            <IoIosArrowRoundBack size={45} className='text-primaryColor' />
           </div>
+          <h1 className='text-2xl font-bold text-start'>My Cart</h1>
         </div>
         {cartItems?.length == 0 ? (
           <p className='text-gray-500 text-lg text-center'>Your Cart is Empty</p>

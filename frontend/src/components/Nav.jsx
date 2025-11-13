@@ -39,7 +39,6 @@ const Nav = () => {
         } catch (error) {
             console.log(error);
             toast.error(error?.response?.data?.message)
-
         }
     }
 
@@ -72,7 +71,6 @@ const Nav = () => {
                                     <MdLocationPin className=' text-primaryColor text-[25px]' />
                                     <div className='w-[80%] truncate text-gray-600'>{currentCity}</div></>
                         }
-
                     </div>
 
                     <div className='w-[80%] flex items-center gap-[10px]'>
