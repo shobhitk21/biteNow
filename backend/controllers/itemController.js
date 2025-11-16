@@ -5,30 +5,42 @@ const Shop = require("../models/shopModel");
 
 const addItem = async (req, res) => {
     try {
-        const { name, category, foodType, price } = req.body
+        const { name, category, foodType, price } = req.body;
+
         let image;
         if (req.file) {
-            image = await uploadOnCloudinary(req.file.path)
+            // minimal change: use buffer instead of path
+            image = await uploadOnCloudinary(req.file.buffer);
         }
-        const shop = await Shop.findOne({ owner: req.userId })
+
+        const shop = await Shop.findOne({ owner: req.userId });
         if (!shop) {
             return res.status(400).json({ message: "shop not found" });
         }
 
-        const item = await Item.create({ name, category, foodType, price, image, shop: shop._id })
-        shop.items.push(item._id)
-        await shop.save()
-        await shop.populate("owner")
+        const item = await Item.create({
+            name,
+            category,
+            foodType,
+            price,
+            image,
+            shop: shop._id
+        });
+
+        shop.items.push(item._id);
+        await shop.save();
+
+        await shop.populate("owner");
         await shop.populate({
             path: "items",
             options: { sort: { updatedAt: -1 } }
-        })
+        });
 
-        return res.status(200).json(shop)
+        return res.status(200).json(shop);
 
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: error.message })
+        res.status(500).json({ message: error.message });
     }
 }
 

@@ -1,21 +1,24 @@
 const cloudinary = require('cloudinary').v2;
-const fs = require('fs');
+const streamifier = require('streamifier');
 
-const uploadOnCloudinary = async (file) => {
+const uploadOnCloudinary = async (buffer) => {
     cloudinary.config({
         cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
         api_key: process.env.CLOUDINARY_API_KEY,
         api_secret: process.env.CLOUDINARY_API_SECRET
     });
-    try {
-        const result = await cloudinary.uploader.upload(file)
-        fs.unlinkSync(file)
-        console.log(result)
-        return result.secure_url
-    } catch (error) {
-        fs.unlinkSync(file)
-        console.log(error);
-    }
-}
+
+    return new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+            { folder: "bitenow-items" },
+            (error, result) => {
+                if (error) reject(error);
+                else resolve(result.secure_url);
+            }
+        );
+
+        streamifier.createReadStream(buffer).pipe(uploadStream);
+    });
+};
 
 module.exports = uploadOnCloudinary;
