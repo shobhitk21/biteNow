@@ -10,6 +10,8 @@ import { useNavigate } from 'react-router-dom';
 const UserDashboard = () => {
   const cateScrollRef = useRef()
   const shopScrollRef = useRef()
+  const itemsGridRef = useRef()
+
   const navigate = useNavigate()
   const { currentCity, shopsInMyCity, itemsInMyCity, searchItems } = useSelector(state => state.user)
   const [showLeftCateButton, setShowLeftCateButton] = useState(true)
@@ -146,7 +148,6 @@ const UserDashboard = () => {
               </button>
             }
 
-
           </div>
         </div>
       }
@@ -165,7 +166,7 @@ const UserDashboard = () => {
         }
 
         <div
-          ref={shopScrollRef}
+          ref={itemsGridRef}
           className='w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 place-items-center pb-4'
         >
           {updatedItemsList?.map((item, index) => (
@@ -173,9 +174,6 @@ const UserDashboard = () => {
           ))}
         </div>
       </div>
-
-
-
     </div>
   )
 }

@@ -47,6 +47,14 @@ app.use("/api/order", orderRouter);
 
 socketHandler(io)
 
+// -------------- SERVE FRONTEND IN PRODUCTION -----------
+
+app.use(express.static(path.join(__dirname, 'build')));
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+
 server.listen(port, () => {
     console.log(`server started at port ${port}!!`);
 });
