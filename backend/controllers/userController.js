@@ -49,15 +49,4 @@ const updateUserLocation = async (req, res) => {
     }
 }
 
-const rating = async (req, res) => {
-    try {
-
-    } catch (error) {
-        console.error("rating error:", error);
-        return res.status(500).json({ message: error.message });
-    }
-
-}
-
-
 module.exports = { getCurrentUser, updateUserLocation }

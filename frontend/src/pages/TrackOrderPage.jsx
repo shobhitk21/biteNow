@@ -65,7 +65,7 @@ const TrackOrderPage = () => {
                     const deliveryBoyLocation = liveLocation[assignedBoy?._id] || {
                         lat: assignedBoy?.location?.coordinates?.[1] ?? 0,
                         lon: assignedBoy?.location?.coordinates?.[0] ?? 0,
-                    };
+                    }
 
                     return (
                         <div

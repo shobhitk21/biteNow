@@ -1,9 +1,11 @@
 const express = require('express');
 const itemRouter = express.Router()
 const { isAuth } = require('../middlewares/isAuth');
-const { addItem, editItem, getItemById, deleteItem, getItemByCity, getItemsByShop, searchItems } = require('../controllers/itemController');
+const { addItem, editItem, getItemById, deleteItem, getItemByCity, getItemsByShop, searchItems, rating, getUserRating } = require('../controllers/itemController');
 const upload = require('../middlewares/multer');
 
+itemRouter.post("/rating", isAuth, rating);
+itemRouter.get("/:itemId/rating", isAuth, getUserRating);
 itemRouter.post("/add-item", isAuth, upload.single("image"), addItem);
 itemRouter.post("/edit-item/:itemId", isAuth, upload.single("image"), editItem);
 itemRouter.get("/get-by-id/:itemId", isAuth, getItemById);

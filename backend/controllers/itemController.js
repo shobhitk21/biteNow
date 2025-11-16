@@ -170,7 +170,86 @@ const searchItems = async (req, res) => {
         console.log(error);
         res.status(500).json({ message: error.message });
     }
-};
+}
+
+const rating = async (req, res) => {
+    try {
+        const { itemId, rating } = req.body;
+        const userId = req.userId; // from auth middleware
+
+        if (!itemId || rating == null) {
+            return res.status(400).json({ message: "itemId and rating are required" });
+        }
+
+        const numericRating = Number(rating);
+
+        if (isNaN(numericRating) || numericRating < 1 || numericRating > 5) {
+            return res.status(400).json({ message: "rating must be a number between 1 and 5" });
+        }
+
+        const item = await Item.findById(itemId);
+        if (!item) {
+            return res.status(404).json({ message: "Item not found" });
+        }
+
+        // Initialize rating object
+        if (!item.rating) {
+            item.rating = { average: 0, count: 0, ratings: [] };
+        }
+
+        // Check if user already rated
+        const existingRating = item.rating.ratings.find(
+            r => r.user.toString() === userId
+        );
+
+        if (existingRating) {
+            existingRating.value = numericRating;
+        } else {
+            item.rating.ratings.push({ user: userId, value: numericRating });
+        }
+
+        // AVERAGE
+        const validRatings = item.rating.ratings
+            .map(r => Number(r.value))
+            .filter(v => !isNaN(v) && v > 0);
+
+        const count = validRatings.length;
+        const avg = count === 0
+            ? 0
+            : validRatings.reduce((a, b) => a + b, 0) / count;
+
+        item.rating.count = count;
+        item.rating.average = Number(avg.toFixed(1));    // round to 1 decimal
+        // ----------------------------------------------
+
+        await item.save();
+
+        res.status(200).json({ rating: item.rating });
+
+    } catch (error) {
+        console.error("rating error:", error);
+        res.status(500).json({ message: error.message });
+    }
+}
+
+const getUserRating = async (req, res) => {
+    try {
+        const { itemId } = req.params;
+        const userId = req.userId;
+
+        const item = await Item.findById(itemId);
+        if (!item) return res.status(404).json({ message: "Item not found" });
+
+        const userRating = item.rating.ratings.find(
+            (r) => r.user.toString() === userId
+        );
+
+        return res.status(200).json({ rating: userRating ? userRating.value : 0 });
+    } catch (error) {
+        console.error("getUserRating error:", error);
+        return res.status(500).json({ message: error.message });
+    }
+}
 
 
-module.exports = { addItem, editItem, getItemById, deleteItem, getItemByCity, getItemsByShop, searchItems }
+module.exports = { addItem, editItem, getItemById, deleteItem, getItemByCity, getItemsByShop, searchItems, rating, getUserRating }
