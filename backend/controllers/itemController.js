@@ -1,4 +1,4 @@
-const uploadOnCloudinary = require("../config/cloudinary");
+const uploadOnCloudinary = require("../config/cloudinary.js");
 const { create } = require("../models/deliveryAssignmentModel");
 const Item = require("../models/itemModels");
 const Shop = require("../models/shopModel");

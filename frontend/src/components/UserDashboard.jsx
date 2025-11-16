@@ -18,7 +18,6 @@ const UserDashboard = () => {
   const [showRightShopButton, setShowRightShopButton] = useState(false)
   const [updatedItemsList, setUpdatedItemsList] = useState([])
 
-
   const handleFilterByCategory = (category) => {
     if (category == "All") {
       setUpdatedItemsList(itemsInMyCity)
@@ -127,6 +126,14 @@ const UserDashboard = () => {
               </button>
             }
 
+            {
+              currentCity !== null && shopsInMyCity?.length === 0 && <div className='w-full h-32 flex items-center justify-center'>
+                <h1 className='text-gray-500 text-xl font-semibold sm:text-2xl'>
+                  No shops available in your city...
+                </h1>
+              </div>
+            }
+
             <div className='w-full flex overflow-x-auto gap-4 pb-2 ' ref={shopScrollRef}>
               {shopsInMyCity?.map((shop, index) => (
                 <CategoryCard name={shop.name} image={shop.image} key={index} onClick={() => navigate(`shop/${shop._id}`)} />
@@ -145,7 +152,17 @@ const UserDashboard = () => {
       }
 
       <div className='w-full max-w-6xl flex flex-col gap-5 items-start p-[10px]'>
-        <h1 className='text-gray-800 text-2xl sm:text-3xl'>Suggested Food Items</h1>
+        {
+          currentCity == null
+            ? (<div className="w-full h-[30vh] flex items-center justify-center">
+              <h1 className='text-gray-500 text-xl font-semibold sm:text-2xl'>
+                Turn on your location...
+              </h1>
+            </div>)
+            : shopsInMyCity?.length === 0
+              ? null
+              : (<h1 className='text-gray-800 text-2xl sm:text-3xl'>Suggested Food Items</h1>)
+        }
 
         <div
           ref={shopScrollRef}
