@@ -89,18 +89,18 @@ const signIn = async (req, res) => {
 }
 
 const signOut = async (req, res) => {
-
     try {
+        res.clearCookie("token", {
+            secure: true,
+            sameSite: "none",
+            httpOnly: true
+        });
 
-        await res.clearCookie("token");
         return res.status(200).json({ message: "loggedOut Successfully" });
-
     } catch (error) {
         console.log(error);
-        return res.status(500).json({ message: error.message })
+        return res.status(500).json({ message: error.message });
     }
-
-
 }
 
 const sendOtp = async (req, res) => {
