@@ -140,7 +140,7 @@ const DeliveryBoy = () => {
     return () => {
       socket.off("newAssignment", handleNewAssignment);
     }
-  }, [socket, userData]);
+  }, [socket, userData])
 
 
   useEffect(() => {
@@ -158,8 +158,8 @@ const DeliveryBoy = () => {
             Welcome, {userData.fullName}
           </h1>
           <p className='text-[#ff4d2d]'>
-            <span className='font-semibold'>Latitude:</span> {deliveryBoyLocation?.lat},
-            <span className='font-semibold'>Longitude:</span> {deliveryBoyLocation?.lon}
+            <span className='font-semibold'>Latitude: {deliveryBoyLocation?.lat}, </span>
+            <span className='font-semibold'>Longitude: {deliveryBoyLocation?.lon}</span>
           </p>
         </div>
 
@@ -270,14 +270,9 @@ const DeliveryBoy = () => {
                   </button>
 
                 </div>
-
             }
-
-
           </div>
         }
-
-
 
       </div>
     </div>

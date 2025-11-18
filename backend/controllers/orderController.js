@@ -96,23 +96,23 @@ export const placeOrder = async (req, res) => {
         ]);
 
         const io = req.app.get('io')
-        if (io) {
-            newOrder.shopOrders.forEach((shopOrder) => {
-                const ownerSocketId = shopOrder.owner?.socketId
-                if (ownerSocketId) {
-                    io.to(ownerSocketId).emit('newOrder', {
-                        _id: newOrder._id,
-                        paymentMethod: newOrder.paymentMethod,
-                        user: newOrder.user,
-                        shopOrders: shopOrder,
-                        createdAt: newOrder.createdAt,
-                        deliveryAddress: newOrder.deliveryAddress,
-                    })
-                } else {
-                    console.log(error)
-                }
-            })
-        }
+        newOrder.shopOrders.forEach((shopOrder) => {
+            const ownerSocketId = shopOrder.owner?.socketId;
+
+            if (ownerSocketId) {
+                io.to(ownerSocketId).emit('newOrder', {
+                    _id: newOrder._id,
+                    paymentMethod: newOrder.paymentMethod,
+                    user: newOrder.user,
+                    shopOrders: shopOrder,
+                    createdAt: newOrder.createdAt,
+                    deliveryAddress: newOrder.deliveryAddress,
+                });
+            } else {
+                console.log("⚠️ Owner socketId not found for shopOrder:", shopOrder.shop);
+            }
+        })
+
 
         return res.status(201).json(newOrder)
     } catch (error) {
@@ -442,7 +442,7 @@ export const acceptOrder = async (req, res) => {
         console.log(error);
         res.status(500).json({ message: error.message });
     }
-};
+}
 
 export const getCurrentOrder = async (req, res) => {
     try {
@@ -459,7 +459,7 @@ export const getCurrentOrder = async (req, res) => {
             });
 
         if (!assignment) {
-            return res.status(400).json({ message: "No current Order accepted" });
+            return res.status(400).json(null);
         }
         if (!assignment.order) {
             return res.status(400).json({ message: "Order not found" });
@@ -575,31 +575,47 @@ export const sendDeliveryOtp = async (req, res) => {
 
 export const verifyDeliveryOtp = async (req, res) => {
     try {
-        const { orderId, shopOrderId, otp } = req.body
-        const order = await Order.findById(orderId).populate("user")
-        const shopOrder = order.shopOrders.id(shopOrderId)
-        if (!order || !shopOrder) {
-            return res.status(404).json({ message: "Order or Shop Order not found" })
-        }
-        if (shopOrder.deliveryOtp !== otp || !shopOrder.otpExpires || shopOrder.otpExpires < Date.now()) {
-            return res.status(400).json({ message: "Invalid/Expired OTP" })
-        }
-        shopOrder.status = "Delivered"
-        shopOrder.deliveredAt = Date.now()
-        await order.save()
-        await DeliveryAssignment.deleteOne({
-            shopOrderId: shopOrder._id,
-            order: order._id,
-            assignedTo: shopOrder.assignedDeliveryBoy
-        })
+        const { orderId, shopOrderId, otp } = req.body;
 
-        return res.status(200).json({ message: "Order Delivered Successfully!!" })
+        const order = await Order.findById(orderId).populate("user");
+        const shopOrder = order.shopOrders.id(shopOrderId);
+
+        if (!order || !shopOrder) {
+            return res.status(404).json({ message: "Order or Shop Order not found" });
+        }
+
+        if (
+            shopOrder.deliveryOtp !== otp ||
+            !shopOrder.otpExpires ||
+            shopOrder.otpExpires < Date.now()
+        ) {
+            return res.status(400).json({ message: "Invalid/Expired OTP" });
+        }
+
+        // Update shop order
+        shopOrder.status = "Delivered";
+        shopOrder.deliveredAt = Date.now();
+        await order.save();
+
+        // Update DeliveryAssignment (don't delete it!)
+        await DeliveryAssignment.findByIdAndUpdate(
+            shopOrder.assignment,
+            {
+                assignedTo: req.userId,
+                status: "Delivered",
+                deliveredAt: Date.now(),
+            }
+        );
+
+        return res
+            .status(200)
+            .json({ message: "Order Delivered Successfully!!" });
 
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: error.message });
     }
-}
+};
 
 export const getTodayDeliveries = async (req, res) => {
     try {
@@ -646,6 +662,34 @@ export const getTodayDeliveries = async (req, res) => {
     }
 
 }
+
+export const getDeliveredOrdersByDeliveryBoy = async (req, res) => {
+    try {
+        const deliveryBoyId = req.userId;
+
+        const deliveredAssignments = await DeliveryAssignment.find({
+            assignedTo: deliveryBoyId,
+            status: "Delivered"        // <— THIS IS CORRECT NOW
+        })
+            .populate("order")
+            .populate("shop")
+            .populate({
+                path: "order",
+                populate: {
+                    path: "shopOrders.shop"
+                }
+            });
+
+        res.json({
+            success: true,
+            deliveredOrders: deliveredAssignments
+        });
+
+    } catch (error) {
+        console.log("Error fetching delivered orders:", error);
+        res.status(500).json({ message: error.message });
+    }
+};
 
 
 

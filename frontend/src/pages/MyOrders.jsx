@@ -5,11 +5,40 @@ import { IoIosArrowRoundBack } from "react-icons/io";
 import UserOrderCard from '../components/UserOrderCard';
 import OwnerOrderCard from '../components/OwnerOrderCard';
 import { setMyOrders, updateRealtimeOrderStatus } from '../redux/userSlice';
+import axios from "axios";
+import DeliveryOrderCard from '../components/DeliveryOrderCard';
 
 const MyOrders = () => {
     const { userData, myOrders, socket } = useSelector(state => state.user)
     const navigate = useNavigate()
     const dispatch = useDispatch()
+
+    // ✅ fetch deliveryBoy orders
+    useEffect(() => {
+        const fetchDeliveredOrders = async () => {
+            try {
+                if (userData?.role === "deliveryBoy") {
+
+                    const {data} = await axios.get(
+                        `${import.meta.env.VITE_BACKEND_URL}/api/order/delivery/my-delivered-orders`,
+                        { withCredentials: true } 
+                    );
+
+                    console.log("DELIVERED ORDERS => ", data);
+
+                    dispatch(setMyOrders(data.deliveredOrders));
+                }
+            } catch (error) {
+                console.log("ERR: ", error.response?.data || error);
+            }
+        }
+
+        fetchDeliveredOrders();
+    }, [userData?.role]);
+
+
+
+
 
     useEffect(() => {
         if (!socket || !userData?._id) return;
@@ -34,7 +63,6 @@ const MyOrders = () => {
     }, [userData?._id, dispatch, myOrders])
 
 
-
     return (
         <div className='w-full min-h-screen bg-[#fff9f6] flex justify-center px-4'>
             <div className='w-full max-w-[800px] p-4'>
@@ -45,25 +73,20 @@ const MyOrders = () => {
                     <h1 className='text-2xl font-bold text-start'>My Orders</h1>
                 </div>
 
-                {
-                    myOrders?.length === 0
-                        ? <div className='text-gray-500 text-lg text-center'>No orders found</div>
-                        : <div className='sapce-y-6'>
-                            {
-                                myOrders?.map((order, index) => (
-                                    userData.role === "user"
-                                        ? (<UserOrderCard data={order} key={index} />)
-                                        : userData.role === "owner"
-                                            ? (<OwnerOrderCard data={order} key={index} />)
-                                            : null
-                                ))
-                            }
-                        </div>
-                }
+                {myOrders?.map((order, index) => {
+                    if (userData.role === "user")
+                        return <UserOrderCard data={order} key={index} />
 
+                    if (userData.role === "owner")
+                        return <OwnerOrderCard data={order} key={index} />
+
+                    if (userData.role === "deliveryBoy")
+                        return <DeliveryOrderCard data={order} key={index} />
+
+                    return null;
+                })}
             </div>
         </div>
-
     )
 }
 

@@ -1,6 +1,6 @@
 const express = require('express');
 const { isAuth } = require('../middlewares/isAuth.js');
-const { placeOrder, getMyOrders, updateOrderStatus, getDeliveryBoyAssignment, acceptOrder, getCurrentOrder, getOrderById, sendDeliveryOtp, verifyDeliveryOtp, verifyPayment, getTodayDeliveries } = require('../controllers/orderController.js');
+const { placeOrder, getMyOrders, updateOrderStatus, getDeliveryBoyAssignment, acceptOrder, getCurrentOrder, getOrderById, sendDeliveryOtp, verifyDeliveryOtp, verifyPayment, getTodayDeliveries, getDeliveredOrdersByDeliveryBoy } = require('../controllers/orderController.js');
 const orderRouter = express.Router()
 
 orderRouter.post("/place-order", isAuth, placeOrder);
@@ -14,6 +14,7 @@ orderRouter.post("/update-status/:orderId/:shopOrderId", isAuth, updateOrderStat
 orderRouter.get("/get-today-deliveries", isAuth, getTodayDeliveries);
 orderRouter.post("/accept-order/:assignmentId", isAuth, acceptOrder);
 orderRouter.get("/get-order-by-id/:orderId", isAuth, getOrderById);
+orderRouter.get("/delivery/my-delivered-orders", isAuth, getDeliveredOrdersByDeliveryBoy);
 
 
 
