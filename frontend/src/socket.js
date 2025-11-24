@@ -2,7 +2,6 @@ import { io } from "socket.io-client";
 
 let socket = null;
 
-// ✅ Function to initialize the socket connection
 export const initializeSocket = (userId) => {
     if (!userId) return null;
 

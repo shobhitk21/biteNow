@@ -60,17 +60,21 @@ const OwnerOrderCard = ({ data }) => {
                     </span>
                 </span>
 
-                {
-                    data.shopOrders.status !== "Delivered" && <select
-                        className='rounded-md border px-3 py-1 text-sm focus:outline-none focus:ring-2 border-primaryColor text-primaryColor'
-                        onChange={(e) => handleUpdateStatus(data._id, data.shopOrders._id, e.target.value)}
-                    >
-                        <option value="">Change</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Preparing">Preparing</option>
-                        <option value="Out for delivery">Out for delivery</option>
-                    </select>
+                {data.shopOrders.assignedDeliveryBoy
+                    ? ""
+                    : <p>                {
+                        data.shopOrders.status !== "Delivered" && <select
+                            className='rounded-md border px-3 py-1 text-sm focus:outline-none focus:ring-2 border-primaryColor text-primaryColor'
+                            onChange={(e) => handleUpdateStatus(data._id, data.shopOrders._id, e.target.value)}
+                        >
+                            <option value="">Change</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Preparing">Preparing</option>
+                            <option value="Out for delivery">Out for delivery</option>
+                        </select>
+                    }</p>
                 }
+
 
             </div>
 

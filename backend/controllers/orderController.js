@@ -109,12 +109,12 @@ export const placeOrder = async (req, res) => {
                     deliveryAddress: newOrder.deliveryAddress,
                 });
             } else {
-                console.log("⚠️ Owner socketId not found for shopOrder:", shopOrder.shop);
+                console.log("Owner socketId not found for shopOrder:", shopOrder.shop);
             }
         })
 
-
         return res.status(201).json(newOrder)
+
     } catch (error) {
         console.error("placeOrder error: ", error)
         res.status(500).json({ message: error.message })
@@ -132,7 +132,7 @@ export const verifyPayment = async (req, res) => {
 
         const order = await Order.findById(orderId)
             .populate([
-                { path: "user", select: "fullName email mobile socketId" }, // ✅ added socketId here
+                { path: "user", select: "fullName email mobile socketId" },
                 { path: "shopOrders.shopOrderItems.item", select: "name image price" },
                 { path: "shopOrders.shop", select: "name" },
                 {
@@ -152,7 +152,6 @@ export const verifyPayment = async (req, res) => {
         const io = req.app.get("io");
 
         if (io) {
-            // ✅ Use `for...of` with await to ensure proper async handling
             for (const shopOrder of order.shopOrders) {
                 const ownerSocketId = shopOrder.owner?.socketId;
 
@@ -165,7 +164,7 @@ export const verifyPayment = async (req, res) => {
                         createdAt: order.createdAt,
                         deliveryAddress: order.deliveryAddress,
                     });
-                    console.log(`✅ Emitted newOrder to owner: ${shopOrder.owner.email}`);
+                    console.log(`Emitted newOrder to owner: ${shopOrder.owner.email}`);
                 }
             }
         }
@@ -173,10 +172,10 @@ export const verifyPayment = async (req, res) => {
         return res.status(200).json(order);
 
     } catch (error) {
-        console.log("❌ verifyPayment error:", error);
+        console.log("verifyPayment error:", error);
         res.status(500).json({ message: error.message });
     }
-};
+}
 
 export const getMyOrders = async (req, res) => {
     try {
@@ -259,8 +258,9 @@ export const updateOrderStatus = async (req, res) => {
 
             const busyIds = await DeliveryAssignment.find({
                 assignedTo: { $in: nearbyIds },
-                status: { $nin: ["Broadcasted", "Completed"] },
+                status: { $in: ["Assigned"] }
             }).distinct("assignedTo");
+
 
             const busyIdSet = new Set(busyIds.map(id => String(id)));
             const availableBoys = nearByDeliveryBoy?.filter(
@@ -369,6 +369,7 @@ export const updateOrderStatus = async (req, res) => {
 export const getDeliveryBoyAssignment = async (req, res) => {
     try {
         const deliveryBoyId = req.userId
+
         const assignments = await DeliveryAssignment.find({
             broadcastedTo: deliveryBoyId,
             status: "Broadcasted"
@@ -410,7 +411,7 @@ export const acceptOrder = async (req, res) => {
 
         const alreadyAssigned = await DeliveryAssignment.findOne({
             assignedTo: req.userId,
-            status: { $nin: ["Broadcasted", "Completed"] },
+            status: { $nin: ["Assigned", "Delivered"] },
         });
 
         if (alreadyAssigned) {
@@ -438,6 +439,7 @@ export const acceptOrder = async (req, res) => {
         await order.save();
 
         return res.status(200).json({ message: "Order accepted successfully" });
+
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: error.message });
@@ -529,7 +531,7 @@ export const getOrderById = async (req, res) => {
         console.log(error);
         res.status(500).json({ message: error.message });
     }
-};
+}
 
 export const sendDeliveryOtp = async (req, res) => {
     try {
@@ -571,7 +573,7 @@ export const sendDeliveryOtp = async (req, res) => {
         console.error(error);
         res.status(500).json({ message: error.message });
     }
-};
+}
 
 export const verifyDeliveryOtp = async (req, res) => {
     try {
@@ -597,7 +599,7 @@ export const verifyDeliveryOtp = async (req, res) => {
         shopOrder.deliveredAt = Date.now();
         await order.save();
 
-        // Update DeliveryAssignment (don't delete it!)
+        // Update DeliveryAssignment
         await DeliveryAssignment.findByIdAndUpdate(
             shopOrder.assignment,
             {
@@ -607,15 +609,13 @@ export const verifyDeliveryOtp = async (req, res) => {
             }
         );
 
-        return res
-            .status(200)
-            .json({ message: "Order Delivered Successfully!!" });
+        return res.status(200).json({ message: "Order Delivered Successfully!!" });
 
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: error.message });
     }
-};
+}
 
 export const getTodayDeliveries = async (req, res) => {
     try {
@@ -669,7 +669,7 @@ export const getDeliveredOrdersByDeliveryBoy = async (req, res) => {
 
         const deliveredAssignments = await DeliveryAssignment.find({
             assignedTo: deliveryBoyId,
-            status: "Delivered"        // <— THIS IS CORRECT NOW
+            status: "Delivered"
         })
             .populate("order")
             .populate("shop")
@@ -689,7 +689,4 @@ export const getDeliveredOrdersByDeliveryBoy = async (req, res) => {
         console.log("Error fetching delivered orders:", error);
         res.status(500).json({ message: error.message });
     }
-};
-
-
-
+}

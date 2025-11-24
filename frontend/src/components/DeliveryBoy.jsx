@@ -34,13 +34,13 @@ const DeliveryBoy = () => {
           userId: userData._id
         })
 
-      }),
+      },
         (error) => {
           console.log(error)
         },
-      {
-        enableHighAccuracy: true
-      }
+        {
+          enableHighAccuracy: true
+        })
     }
     return () => {
       if (watchId) navigator.geolocation.clearWatch(watchId)
@@ -72,6 +72,7 @@ const DeliveryBoy = () => {
   const getCurrentOrder = async () => {
     try {
       const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/order/get-current-order`, { withCredentials: true });
+      console.log(data)
       setCurrentOrder(data)
 
     } catch (error) {
@@ -116,7 +117,6 @@ const DeliveryBoy = () => {
   const handleTodayDeliveries = async () => {
     try {
       const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/order/get-today-deliveries`, { withCredentials: true });
-      console.log(data);
       setTodayDeliveries(data)
       toast.success(data.message)
 
