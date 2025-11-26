@@ -563,6 +563,9 @@ export const sendDeliveryOtp = async (req, res) => {
         shopOrder.otpExpires = new Date(Date.now() + 5 * 60 * 1000); // expires in 5 mins
 
         await order.save();
+
+        console.log("Sending email to:", "OTP:", otp);
+
         sendDeliveryOtpMail(order?.user, otp)
 
         return res.json({
