@@ -564,9 +564,7 @@ export const sendDeliveryOtp = async (req, res) => {
 
         await order.save();
 
-        console.log("Sending email to:", "OTP:", otp);
-
-        sendDeliveryOtpMail(order?.user, otp)
+        await sendDeliveryOtpMail(order?.user, otp)
 
         return res.json({
             message: "OTP generated successfully",
