@@ -47,7 +47,6 @@ app.use("/api/order", orderRouter);
 
 socketHandler(io)
 
-
 server.listen(port, () => {
     console.log(`server started at port ${port}!!`);
 });

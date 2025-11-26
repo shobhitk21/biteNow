@@ -18,25 +18,16 @@ const MyOrders = () => {
         const fetchDeliveredOrders = async () => {
             try {
                 if (userData?.role === "deliveryBoy") {
-
-                    const {data} = await axios.get(
-                        `${import.meta.env.VITE_BACKEND_URL}/api/order/delivery/my-delivered-orders`,
-                        { withCredentials: true } 
-                    );
-
-                    console.log("DELIVERED ORDERS => ", data);
-
+                    const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/order/delivery/my-delivered-orders`, { withCredentials: true });
                     dispatch(setMyOrders(data.deliveredOrders));
                 }
             } catch (error) {
-                console.log("ERR: ", error.response?.data || error);
+                console.log(error.response?.data || error);
             }
         }
 
         fetchDeliveredOrders();
     }, [userData?.role]);
-
-
 
 
 

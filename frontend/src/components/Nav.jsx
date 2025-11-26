@@ -138,7 +138,6 @@ const Nav = () => {
                             <LuReceiptIndianRupee onClick={() => navigate("/my-orders")} size={20} />
                             <span className='hidden md:flex' onClick={() => navigate("/my-orders")}>My Orders</span>
                             <span className='absolute -right-2 -top-2 text-xs font-bold text-white bg-[#ff4d2d] rounded-full px-[6px] py-[1px]'>{pendingOrdersCount}</span>
-
                         </div>
                     </>
                 }

@@ -6,15 +6,18 @@ const createAndEditShop = async (req, res) => {
     try {
         const { name, city, state, address } = req.body
         let image;
+
         if (req.file) {
-            image = await uploadOnCloudinary(req.file.path)
+            image = await uploadOnCloudinary(req.file.buffer)
         }
 
         let shop = await Shop.findOne({ owner: req.userId })
+
         if (!shop) {
             shop = await Shop.create({ name, city, state, address, image, owner: req.userId })
         } else {
             shop = await Shop.findByIdAndUpdate(shop._id, { name, city, state, address, image, owner: req.userId }, { new: true })
+            console.log(shop);
         }
 
         await shop.populate("owner")

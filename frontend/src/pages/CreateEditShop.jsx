@@ -40,7 +40,6 @@ const CreateEditShop = () => {
             formData.append("address", address)
             if (backendImage) {
                 formData.append("image", backendImage)
-
             }
             const { data } = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/shop/create-edit`, formData, { withCredentials: true })
             dispatch(setMyShopData(data))
