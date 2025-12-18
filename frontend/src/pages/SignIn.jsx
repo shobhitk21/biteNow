@@ -39,7 +39,7 @@ const SignIn = () => {
     return (
         <div className='min-h-screen w-full flex items-center justify-center p-4 bg-bgColor'>
             <div className='bg-white rounded-xl shadow-lg w-full max-w-md px-8 py-6 border-[1px] border-borderColor'>
-                <h1 className='text-3xl font-bold mb-2 text-primaryColor'>Vingo</h1>
+                <h1 className='text-3xl font-bold mb-2 text-primaryColor'>BiteNow</h1>
                 <p className='text-gray-500 mb-5 text-sm'>Create account to get started with delicious food deliveries</p>
 
                 <div className='mb-4'>
