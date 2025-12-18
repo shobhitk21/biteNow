@@ -183,10 +183,10 @@ const CheckOut = () => {
                 }}
 
               />
-              <button className='bg-[#ff4d2d] hover:bg-[#e64526] text-white px-3 py-2 rounded flex items-center justify-center' onClick={() => getLatLngByAddress(addressInput)}>
-                <IoSearchOutline size={17} />
+              <button className='bg-[#ff4d2d] hover:bg-[#e64526] text-white px-3 py-2 rounded flex items-center justify-center cursor-pointer' onClick={() => getLatLngByAddress(addressInput)}>
+                <IoSearchOutline size={17} /> 
               </button>
-              <button className='bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded flex items-center justify-center' onClick={getCurrentLocation}>
+              <button className='bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded flex items-center justify-center cursor-pointer' onClick={getCurrentLocation}>
                 <TbCurrentLocation size={17} />
               </button>
             </div>

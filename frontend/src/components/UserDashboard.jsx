@@ -80,6 +80,14 @@ const UserDashboard = () => {
     };
   }, [shopsInMyCity]);
 
+  useEffect(() => {
+    if (currentCity) {
+      dispatch(fetchShopsByCity(currentCity));
+      dispatch(fetchItemsByCity(currentCity));
+    }
+  }, [currentCity]);
+  
+
   return (
     <div className="w-full min-h-screen bg-bgColor flex flex-col items-center overflow-y-auto">
       <Nav />
