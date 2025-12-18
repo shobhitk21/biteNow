@@ -249,7 +249,7 @@ export const updateOrderStatus = async (req, res) => {
                             type: "Point",
                             coordinates: [Number(longitude), Number(latitude)],
                         },
-                        $maxDistance: 20000, // 20 km
+                        $maxDistance: 5000000, // 5000 km
                     },
                 },
             });
