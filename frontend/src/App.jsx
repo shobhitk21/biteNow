@@ -56,8 +56,6 @@ function App() {
     }
   }, [userData?._id])
 
-  if (loading) return <div className="text-center mt-10 text-lg font-semibold">Loading...</div>
-
   return (
     <>
       <ToastContainer />
