@@ -59,7 +59,6 @@ function App() {
   return (
     <>
       <ToastContainer />
-
       <Routes>
         <Route path='/' element={userData ? <Home /> : <Navigate to="/signin" />} />
         <Route path="/signin" element={!userData ? <SignIn /> : <Navigate to="/" />} />

@@ -78,15 +78,7 @@ const UserDashboard = () => {
       if (cateEl) cateEl.removeEventListener("scroll", handleCateScroll);
       if (shopEl) shopEl.removeEventListener("scroll", handleShopScroll);
     };
-  }, [shopsInMyCity]);
-
-  useEffect(() => {
-    if (currentCity) {
-      dispatch(fetchShopsByCity(currentCity));
-      dispatch(fetchItemsByCity(currentCity));
-    }
-  }, [currentCity]);
-  
+  }, [shopsInMyCity]);  
 
   return (
     <div className="w-full min-h-screen bg-bgColor flex flex-col items-center overflow-y-auto">
