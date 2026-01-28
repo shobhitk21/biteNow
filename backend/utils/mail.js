@@ -56,7 +56,7 @@ const sendDeliveryOtpMail = async (user, otp) => {
         sender: { name: "BiteNow", email: process.env.SENDER_EMAIL },
         to: [{ email: user.email }],
         subject: "Delivery OTP",
-        htmlContent: `<p>Your OTP for Password Reset is <strong style="font-size:18px;">${otp}</strong>. It will expire in 5 minutes.</p>`
+        htmlContent: `<p>Your BiteNow food delivery OTP is <strong style="font-size:18px;">${otp}</strong>. It will expire in 5 minutes.</p>`
     });
 };
 
