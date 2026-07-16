@@ -28,6 +28,10 @@ const deliveryAssignmentSchema = new mongoose.Schema({
         enum: ["Broadcasted", "Assigned", "Delivered"],
         default: "Broadcasted"
     },
+    deliveredAt: {
+        type: Date,
+        default: null,
+    },
     acceptedAt: Date
 
 }, { timestamps: true })

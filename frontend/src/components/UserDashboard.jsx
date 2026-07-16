@@ -4,173 +4,254 @@ import React, {
   useRef,
   useState,
 } from "react";
+
 import axios from "axios";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+
 import {
   FaCircleChevronLeft,
   FaCircleChevronRight,
 } from "react-icons/fa6";
 
 import Nav from "./Nav";
-import FoodCard from "./FoodCard";
 import CategoryCard from "./CategoryCard";
+import FoodCard from "./FoodCard";
+
 import { categories } from "../category.js";
 
-/*
- Add this in your frontend .env file:
+import {
+  setAllItems,
+  setAllShops,
+} from "../redux/userSlice.js";
 
- VITE_SERVER_URL=http://localhost:8000
+const getArrayFromResponse = (data, propertyName) => {
+  if (Array.isArray(data)) {
+    return data;
+  }
 
- For deployed frontend, use your deployed backend URL:
+  if (Array.isArray(data?.[propertyName])) {
+    return data[propertyName];
+  }
 
- VITE_SERVER_URL=https://your-backend.onrender.com
-*/
-const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+  if (Array.isArray(data?.data)) {
+    return data.data;
+  }
+
+  return [];
+};
 
 const UserDashboard = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const cateScrollRef = useRef(null);
+  const categoryScrollRef = useRef(null);
   const shopScrollRef = useRef(null);
-  const itemsGridRef = useRef(null);
 
-  const {
-    currentCity,
-    itemsInMyCity = [],
-    searchItems = [],
-  } = useSelector((state) => state.user);
+  const userState = useSelector((state) => state.user);
 
-  const [allShops, setAllShops] = useState([]);
-  const [updatedItemsList, setUpdatedItemsList] = useState([]);
+  const allShops = Array.isArray(userState.allShops)
+    ? userState.allShops
+    : [];
+
+  const allItems = Array.isArray(userState.allItems)
+    ? userState.allItems
+    : [];
+
+  const searchItems = Array.isArray(userState.searchItems)
+    ? userState.searchItems
+    : [];
+
+  const [filteredItems, setFilteredItems] = useState([]);
 
   const [shopsLoading, setShopsLoading] = useState(true);
+  const [itemsLoading, setItemsLoading] = useState(true);
+
   const [shopsError, setShopsError] = useState("");
+  const [itemsError, setItemsError] = useState("");
 
-  const [showLeftCateButton, setShowLeftCateButton] = useState(false);
-  const [showRightCateButton, setShowRightCateButton] = useState(false);
+  const [showLeftCategoryButton, setShowLeftCategoryButton] =
+    useState(false);
 
-  const [showLeftShopButton, setShowLeftShopButton] = useState(false);
-  const [showRightShopButton, setShowRightShopButton] = useState(false);
+  const [showRightCategoryButton, setShowRightCategoryButton] =
+    useState(false);
 
-  /*
-   Fetch every shop created by admin.
+  const [showLeftShopButton, setShowLeftShopButton] =
+    useState(false);
 
-   This request runs whenever UserDashboard is opened, including immediately
-   after login. Therefore, a hard refresh is no longer required.
-  */
-  const getAllShops = useCallback(async (signal) => {
-    try {
-      setShopsLoading(true);
-      setShopsError("");
+  const [showRightShopButton, setShowRightShopButton] =
+    useState(false);
 
-      if (!SERVER_URL) {
-        throw new Error(
-          "VITE_SERVER_URL is missing from the frontend environment variables."
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+  const fetchAllShops = useCallback(
+    async (signal) => {
+      try {
+        setShopsLoading(true);
+        setShopsError("");
+
+        if (!backendUrl) {
+          throw new Error("VITE_BACKEND_URL is missing.");
+        }
+
+        const { data } = await axios.get(
+          `${backendUrl}/api/shop/all`,
+          {
+            withCredentials: true,
+            signal,
+          }
         );
+
+        const shops = getArrayFromResponse(data, "shops");
+
+        dispatch(setAllShops(shops));
+      } catch (error) {
+        if (
+          error?.name === "CanceledError" ||
+          error?.code === "ERR_CANCELED"
+        ) {
+          return;
+        }
+
+        console.error("Get all shops error:", error);
+
+        dispatch(setAllShops([]));
+
+        setShopsError(
+          error?.response?.data?.message ||
+          error?.message ||
+          "Unable to load shops."
+        );
+      } finally {
+        if (!signal?.aborted) {
+          setShopsLoading(false);
+        }
       }
+    },
+    [backendUrl, dispatch]
+  );
 
-      const response = await axios.get(`${SERVER_URL}/api/shop/all`, {
-        withCredentials: true,
-        signal,
-      });
+  const fetchAllItems = useCallback(
+    async (signal) => {
+      try {
+        setItemsLoading(true);
+        setItemsError("");
 
-      /*
-       Supports any of these backend responses:
+        if (!backendUrl) {
+          throw new Error("VITE_BACKEND_URL is missing.");
+        }
 
-       [shop1, shop2]
+        const { data } = await axios.get(
+          `${backendUrl}/api/item/all`,
+          {
+            withCredentials: true,
+            signal,
+          }
+        );
 
-       { shops: [shop1, shop2] }
+        const items = getArrayFromResponse(data, "items");
 
-       { data: [shop1, shop2] }
-      */
-      const shops =
-        response.data?.shops ??
-        response.data?.data ??
-        response.data ??
-        [];
+        dispatch(setAllItems(items));
+      } catch (error) {
+        if (
+          error?.name === "CanceledError" ||
+          error?.code === "ERR_CANCELED"
+        ) {
+          return;
+        }
 
-      setAllShops(Array.isArray(shops) ? shops : []);
-    } catch (error) {
-      if (
-        error.name === "CanceledError" ||
-        error.code === "ERR_CANCELED"
-      ) {
-        return;
+        console.error("Get all food items error:", error);
+
+        dispatch(setAllItems([]));
+
+        setItemsError(
+          error?.response?.data?.message ||
+          error?.message ||
+          "Unable to load food items."
+        );
+      } finally {
+        if (!signal?.aborted) {
+          setItemsLoading(false);
+        }
       }
-
-      console.error("Get all shops error:", error);
-
-      setAllShops([]);
-      setShopsError(
-        error.response?.data?.message ||
-        error.message ||
-        "Unable to load shops."
-      );
-    } finally {
-      if (!signal?.aborted) {
-        setShopsLoading(false);
-      }
-    }
-  }, []);
+    },
+    [backendUrl, dispatch]
+  );
 
   useEffect(() => {
     const controller = new AbortController();
 
-    getAllShops(controller.signal);
+    fetchAllShops(controller.signal);
+    fetchAllItems(controller.signal);
 
     return () => {
       controller.abort();
     };
-  }, [getAllShops]);
+  }, [fetchAllShops, fetchAllItems]);
 
   useEffect(() => {
-    setUpdatedItemsList(
-      Array.isArray(itemsInMyCity) ? itemsInMyCity : []
-    );
-  }, [itemsInMyCity]);
+    setFilteredItems(allItems);
+  }, [allItems]);
+
+  const retryShops = () => {
+    fetchAllShops();
+  };
+
+  const retryItems = () => {
+    fetchAllItems();
+  };
 
   const handleFilterByCategory = (category) => {
     if (category === "All") {
-      setUpdatedItemsList(itemsInMyCity);
+      setFilteredItems(allItems);
       return;
     }
 
-    const filteredItems = itemsInMyCity.filter(
-      (item) =>
-        item.category?.toLowerCase() === category.toLowerCase()
-    );
+    const selectedCategory = String(category)
+      .trim()
+      .toLowerCase();
 
-    setUpdatedItemsList(filteredItems);
+    const filteredList = allItems.filter((item) => {
+      const itemCategory = String(item?.category || "")
+        .trim()
+        .toLowerCase();
+
+      return itemCategory === selectedCategory;
+    });
+
+    setFilteredItems(filteredList);
   };
 
   const updateScrollButtons = (
-    ref,
-    setShowLeftButton,
-    setShowRightButton
+    scrollReference,
+    setShowLeft,
+    setShowRight
   ) => {
-    const element = ref.current;
+    const element = scrollReference.current;
 
     if (!element) {
-      setShowLeftButton(false);
-      setShowRightButton(false);
+      setShowLeft(false);
+      setShowRight(false);
       return;
     }
 
-    const maxScrollLeft =
+    const maximumScrollLeft =
       element.scrollWidth - element.clientWidth;
 
-    setShowLeftButton(element.scrollLeft > 2);
-    setShowRightButton(
-      maxScrollLeft > 2 &&
-      element.scrollLeft < maxScrollLeft - 2
+    setShowLeft(element.scrollLeft > 2);
+
+    setShowRight(
+      maximumScrollLeft > 2 &&
+      element.scrollLeft < maximumScrollLeft - 2
     );
   };
 
-  const scrollHandler = (ref, direction) => {
-    const element = ref.current;
+  const scrollHandler = (scrollReference, direction) => {
+    const element = scrollReference.current;
 
-    if (!element) return;
+    if (!element) {
+      return;
+    }
 
     element.scrollBy({
       left: direction === "left" ? -250 : 250,
@@ -178,29 +259,35 @@ const UserDashboard = () => {
     });
   };
 
-  /*
-   Update category scroll arrows.
-  */
   useEffect(() => {
-    const element = cateScrollRef.current;
+    const categoryElement = categoryScrollRef.current;
 
-    if (!element) return undefined;
+    if (!categoryElement) {
+      return undefined;
+    }
 
     const updateCategoryButtons = () => {
       updateScrollButtons(
-        cateScrollRef,
-        setShowLeftCateButton,
-        setShowRightCateButton
+        categoryScrollRef,
+        setShowLeftCategoryButton,
+        setShowRightCategoryButton
       );
     };
 
     updateCategoryButtons();
 
-    element.addEventListener("scroll", updateCategoryButtons);
-    window.addEventListener("resize", updateCategoryButtons);
+    categoryElement.addEventListener(
+      "scroll",
+      updateCategoryButtons
+    );
+
+    window.addEventListener(
+      "resize",
+      updateCategoryButtons
+    );
 
     return () => {
-      element.removeEventListener(
+      categoryElement.removeEventListener(
         "scroll",
         updateCategoryButtons
       );
@@ -212,14 +299,12 @@ const UserDashboard = () => {
     };
   }, []);
 
-  /*
-   Update shop scroll arrows again after the asynchronous shop request
-   finishes.
-  */
   useEffect(() => {
-    const element = shopScrollRef.current;
+    const shopElement = shopScrollRef.current;
 
-    if (!element) return undefined;
+    if (!shopElement) {
+      return undefined;
+    }
 
     const updateShopButtons = () => {
       updateScrollButtons(
@@ -229,26 +314,40 @@ const UserDashboard = () => {
       );
     };
 
-    const animationFrame = requestAnimationFrame(
+    const frameId = requestAnimationFrame(
       updateShopButtons
     );
 
-    element.addEventListener("scroll", updateShopButtons);
-    window.addEventListener("resize", updateShopButtons);
+    shopElement.addEventListener(
+      "scroll",
+      updateShopButtons
+    );
+
+    window.addEventListener(
+      "resize",
+      updateShopButtons
+    );
 
     return () => {
-      cancelAnimationFrame(animationFrame);
+      cancelAnimationFrame(frameId);
 
-      element.removeEventListener("scroll", updateShopButtons);
-      window.removeEventListener("resize", updateShopButtons);
+      shopElement.removeEventListener(
+        "scroll",
+        updateShopButtons
+      );
+
+      window.removeEventListener(
+        "resize",
+        updateShopButtons
+      );
     };
-  }, [allShops]);
+  }, [allShops.length, shopsLoading]);
 
   return (
     <div className="w-full min-h-screen bg-bgColor flex flex-col items-center overflow-y-auto">
       <Nav />
 
-      {/* Search results */}
+      {/* Search Results */}
       {searchItems.length > 0 && (
         <section className="w-full max-w-6xl flex flex-col gap-5 items-start p-5 bg-white shadow-md rounded-2xl mt-4">
           <h1 className="text-gray-900 text-2xl sm:text-3xl font-semibold border-b border-gray-200 pb-2">
@@ -256,10 +355,10 @@ const UserDashboard = () => {
           </h1>
 
           <div className="w-full flex flex-wrap gap-6 justify-center">
-            {searchItems.map((item) => (
+            {searchItems.map((item, index) => (
               <FoodCard
+                key={item?._id || `search-item-${index}`}
                 data={item}
-                key={item._id}
               />
             ))}
           </div>
@@ -273,12 +372,12 @@ const UserDashboard = () => {
         </h1>
 
         <div className="w-full relative">
-          {showLeftCateButton && (
+          {showLeftCategoryButton && (
             <button
               type="button"
               aria-label="Scroll categories left"
               onClick={() =>
-                scrollHandler(cateScrollRef, "left")
+                scrollHandler(categoryScrollRef, "left")
               }
               className="absolute left-0 top-1/2 -translate-y-1/2 bg-primaryColor text-white p-2 rounded-full shadow-lg hover:bg-hoverColor z-10"
             >
@@ -287,27 +386,32 @@ const UserDashboard = () => {
           )}
 
           <div
-            ref={cateScrollRef}
+            ref={categoryScrollRef}
             className="w-full flex overflow-x-auto gap-4 pb-2"
           >
-            {categories.map((category) => (
+            {categories.map((category, index) => (
               <CategoryCard
-                key={category.category}
-                name={category.category}
-                image={category.image}
+                key={
+                  category?.category ||
+                  `category-${index}`
+                }
+                name={category?.category}
+                image={category?.image}
                 onClick={() =>
-                  handleFilterByCategory(category.category)
+                  handleFilterByCategory(
+                    category?.category
+                  )
                 }
               />
             ))}
           </div>
 
-          {showRightCateButton && (
+          {showRightCategoryButton && (
             <button
               type="button"
               aria-label="Scroll categories right"
               onClick={() =>
-                scrollHandler(cateScrollRef, "right")
+                scrollHandler(categoryScrollRef, "right")
               }
               className="absolute right-0 top-1/2 -translate-y-1/2 bg-primaryColor text-white p-2 rounded-full shadow-lg hover:bg-hoverColor z-10"
             >
@@ -317,7 +421,7 @@ const UserDashboard = () => {
         </div>
       </section>
 
-      {/* All shops */}
+      {/* All Shops */}
       <section className="w-full max-w-6xl flex flex-col gap-5 items-start p-[10px]">
         <h1 className="text-gray-800 text-2xl sm:text-3xl">
           Best Shops in Your Location
@@ -344,17 +448,17 @@ const UserDashboard = () => {
               </p>
             </div>
           ) : shopsError ? (
-            <div className="w-full min-h-32 flex flex-col gap-3 items-center justify-center">
+            <div className="w-full min-h-32 flex flex-col items-center justify-center gap-3">
               <p className="text-red-500 text-center font-medium">
                 {shopsError}
               </p>
 
               <button
                 type="button"
-                onClick={() => getAllShops()}
+                onClick={retryShops}
                 className="bg-primaryColor text-white px-5 py-2 rounded-lg hover:bg-hoverColor"
               >
-                Try again
+                Try Again
               </button>
             </div>
           ) : allShops.length === 0 ? (
@@ -368,14 +472,16 @@ const UserDashboard = () => {
               ref={shopScrollRef}
               className="w-full flex overflow-x-auto gap-4 pb-2"
             >
-              {allShops.map((shop) => (
+              {allShops.map((shop, index) => (
                 <CategoryCard
-                  key={shop._id}
-                  name={shop.name}
-                  image={shop.image}
-                  onClick={() =>
-                    navigate(`/shop/${shop._id}`)
-                  }
+                  key={shop?._id || `shop-${index}`}
+                  name={shop?.name || "Shop"}
+                  image={shop?.image}
+                  onClick={() => {
+                    if (shop?._id) {
+                      navigate(`/shop/${shop._id}`);
+                    }
+                  }}
                 />
               ))}
             </div>
@@ -396,31 +502,51 @@ const UserDashboard = () => {
         </div>
       </section>
 
-      {/* Items grid */}
+      {/* All Suggested Food Items */}
       <section className="w-full max-w-6xl flex flex-col gap-5 items-start p-[10px]">
-        {currentCity == null ? (
-          <div className="w-full h-[30vh] flex items-center justify-center">
-            <h1 className="text-gray-500 text-xl font-semibold sm:text-2xl">
-              Turn on your location to see nearby food items...
-            </h1>
+        <h1 className="text-gray-800 text-2xl sm:text-3xl">
+          Suggested Food Items
+        </h1>
+
+        {itemsLoading ? (
+          <div className="w-full h-32 flex items-center justify-center">
+            <p className="text-gray-500 text-xl font-semibold">
+              Loading food items...
+            </p>
+          </div>
+        ) : itemsError ? (
+          <div className="w-full min-h-32 flex flex-col items-center justify-center gap-3">
+            <p className="text-red-500 text-center font-medium">
+              {itemsError}
+            </p>
+
+            <button
+              type="button"
+              onClick={retryItems}
+              className="bg-primaryColor text-white px-5 py-2 rounded-lg hover:bg-hoverColor"
+            >
+              Try Again
+            </button>
+          </div>
+        ) : filteredItems.length === 0 ? (
+          <div className="w-full h-32 flex items-center justify-center">
+            <p className="text-gray-500 text-lg font-medium">
+              No food items are available.
+            </p>
           </div>
         ) : (
-          <h1 className="text-gray-800 text-2xl sm:text-3xl">
-            Suggested Food Items
-          </h1>
+          <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 place-items-center pb-4">
+            {filteredItems.map((item, index) => (
+              <FoodCard
+                key={
+                  item?._id ||
+                  `food-item-${index}`
+                }
+                data={item}
+              />
+            ))}
+          </div>
         )}
-
-        <div
-          ref={itemsGridRef}
-          className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 place-items-center pb-4"
-        >
-          {updatedItemsList.map((item) => (
-            <FoodCard
-              data={item}
-              key={item._id}
-            />
-          ))}
-        </div>
       </section>
     </div>
   );

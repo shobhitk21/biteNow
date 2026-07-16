@@ -1,5 +1,10 @@
 import { useEffect } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import {
+  Navigate,
+  Route,
+  Routes,
+} from "react-router-dom";
+
 import { ToastContainer } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import { io } from "socket.io-client";
@@ -23,46 +28,33 @@ import Shop from "./pages/Shop.jsx";
 import useGetCurrentUser from "./hooks/useGetCurrentUser.js";
 import useGetCity from "./hooks/useGetCity.js";
 import useGetMyShop from "./hooks/useGetMyShop.js";
-import useGetItemByCity from "./hooks/useGetItemByCity.js";
 import useGetMyOrders from "./hooks/useGetMyOrders.js";
 import useUpdateLocation from "./hooks/useUpdateLocation.js";
 
 import { setSocket } from "./redux/userSlice.js";
 
-/*
-This component is mounted only after the user logs in.
-
-Therefore, these hooks will run after userData becomes available instead of
-running once before authentication is completed.
-*/
-const AuthenticatedAppEffects = () => {
+const AuthenticatedDataLoader = () => {
   const dispatch = useDispatch();
 
-  const { userData } = useSelector((state) => state.user);
+  const { userData } = useSelector(
+    (state) => state.user
+  );
 
   useGetCity();
   useGetMyShop();
-  useGetItemByCity();
   useGetMyOrders();
   useUpdateLocation();
 
-  /*
-  useGetShopByCity() has intentionally been removed because UserDashboard
-  now fetches every shop from:
-
-  GET /api/shop/all
-  */
-
   useEffect(() => {
-    if (!userData?._id) return undefined;
+    if (!userData?._id) {
+      return undefined;
+    }
 
-    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+    const backendUrl =
+      import.meta.env.VITE_BACKEND_URL;
 
     if (!backendUrl) {
-      console.error(
-        "VITE_BACKEND_URL is missing from frontend environment variables."
-      );
-
+      console.error("VITE_BACKEND_URL is missing.");
       return undefined;
     }
 
@@ -73,21 +65,16 @@ const AuthenticatedAppEffects = () => {
 
     dispatch(setSocket(socketInstance));
 
-    socketInstance.on("connect", () => {
-      console.log("Socket connected:", socketInstance.id);
-
+    const handleConnect = () => {
       socketInstance.emit("identity", {
         userId: userData._id,
       });
-    });
+    };
 
-    socketInstance.on("connect_error", (error) => {
-      console.error("Socket connection error:", error.message);
-    });
+    socketInstance.on("connect", handleConnect);
 
     return () => {
-      socketInstance.off("connect");
-      socketInstance.off("connect_error");
+      socketInstance.off("connect", handleConnect);
       socketInstance.disconnect();
 
       dispatch(setSocket(null));
@@ -100,18 +87,18 @@ const AuthenticatedAppEffects = () => {
 function App() {
   const { loading } = useGetCurrentUser();
 
-  const { userData } = useSelector((state) => state.user);
+  const { userData } = useSelector(
+    (state) => state.user
+  );
 
   if (loading) {
     return (
-      <div className="w-full min-h-screen flex items-center justify-center bg-bgColor">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-gray-300 border-t-primaryColor rounded-full animate-spin" />
+      <div className="w-full min-h-screen flex flex-col gap-3 items-center justify-center bg-bgColor">
+        <div className="w-10 h-10 border-4 border-gray-300 border-t-primaryColor rounded-full animate-spin" />
 
-          <p className="text-gray-600 font-medium">
-            Loading BiteNow...
-          </p>
-        </div>
+        <p className="text-gray-600 font-medium">
+          Loading BiteNow...
+        </p>
       </div>
     );
   }
@@ -120,7 +107,7 @@ function App() {
     <>
       <ToastContainer />
 
-      {userData && <AuthenticatedAppEffects />}
+      {userData && <AuthenticatedDataLoader />}
 
       <Routes>
         <Route
@@ -129,7 +116,10 @@ function App() {
             userData ? (
               <Home />
             ) : (
-              <Navigate to="/signin" replace />
+              <Navigate
+                to="/signin"
+                replace
+              />
             )
           }
         />
@@ -140,7 +130,10 @@ function App() {
             !userData ? (
               <SignIn />
             ) : (
-              <Navigate to="/" replace />
+              <Navigate
+                to="/"
+                replace
+              />
             )
           }
         />
@@ -151,7 +144,10 @@ function App() {
             !userData ? (
               <SignUp />
             ) : (
-              <Navigate to="/" replace />
+              <Navigate
+                to="/"
+                replace
+              />
             )
           }
         />
@@ -162,7 +158,10 @@ function App() {
             !userData ? (
               <ForgotPassword />
             ) : (
-              <Navigate to="/" replace />
+              <Navigate
+                to="/"
+                replace
+              />
             )
           }
         />
@@ -173,7 +172,10 @@ function App() {
             userData ? (
               <CreateEditShop />
             ) : (
-              <Navigate to="/signin" replace />
+              <Navigate
+                to="/signin"
+                replace
+              />
             )
           }
         />
@@ -184,7 +186,10 @@ function App() {
             userData ? (
               <AddItem />
             ) : (
-              <Navigate to="/signin" replace />
+              <Navigate
+                to="/signin"
+                replace
+              />
             )
           }
         />
@@ -195,7 +200,10 @@ function App() {
             userData ? (
               <EditItem />
             ) : (
-              <Navigate to="/signin" replace />
+              <Navigate
+                to="/signin"
+                replace
+              />
             )
           }
         />
@@ -206,7 +214,10 @@ function App() {
             userData ? (
               <CartPage />
             ) : (
-              <Navigate to="/signin" replace />
+              <Navigate
+                to="/signin"
+                replace
+              />
             )
           }
         />
@@ -217,7 +228,10 @@ function App() {
             userData ? (
               <CheckOut />
             ) : (
-              <Navigate to="/signin" replace />
+              <Navigate
+                to="/signin"
+                replace
+              />
             )
           }
         />
@@ -228,7 +242,10 @@ function App() {
             userData ? (
               <OrderPlaced />
             ) : (
-              <Navigate to="/signin" replace />
+              <Navigate
+                to="/signin"
+                replace
+              />
             )
           }
         />
@@ -239,7 +256,10 @@ function App() {
             userData ? (
               <MyOrders />
             ) : (
-              <Navigate to="/signin" replace />
+              <Navigate
+                to="/signin"
+                replace
+              />
             )
           }
         />
@@ -250,7 +270,10 @@ function App() {
             userData ? (
               <TrackOrderPage />
             ) : (
-              <Navigate to="/signin" replace />
+              <Navigate
+                to="/signin"
+                replace
+              />
             )
           }
         />
@@ -261,17 +284,23 @@ function App() {
             userData ? (
               <Shop />
             ) : (
-              <Navigate to="/signin" replace />
+              <Navigate
+                to="/signin"
+                replace
+              />
             )
           }
         />
 
-        {/* Invalid routes */}
         <Route
           path="*"
           element={
             <Navigate
-              to={userData ? "/" : "/signin"}
+              to={
+                userData
+                  ? "/"
+                  : "/signin"
+              }
               replace
             />
           }

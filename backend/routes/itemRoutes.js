@@ -1,20 +1,17 @@
-const express = require('express');
-const itemRouter = express.Router()
-const { isAuth } = require('../middlewares/isAuth');
-const { addItem, editItem, getItemById, deleteItem, getItemByCity, getItemsByShop, searchItems, rating, getUserRating } = require('../controllers/itemController');
-const upload = require('../middlewares/multer');
+const express = require("express");
+const itemRouter = express.Router();
 
+const { isAuth } = require("../middlewares/isAuth.js");
+const upload = require("../middlewares/multer.js");
+const { addItem, editItem, getItemById, deleteItem, getItemsByShop, searchItems, rating, getUserRating, getAllItems, } = require("../controllers/itemController.js");
+itemRouter.get("/all", getAllItems);
+itemRouter.get("/search-items", searchItems);
+itemRouter.get("/get-by-shop/:shopId", getItemsByShop);
+itemRouter.get("/get-by-id/:itemId", getItemById);
 itemRouter.post("/rating", isAuth, rating);
 itemRouter.get("/:itemId/rating", isAuth, getUserRating);
 itemRouter.post("/add-item", isAuth, upload.single("image"), addItem);
 itemRouter.post("/edit-item/:itemId", isAuth, upload.single("image"), editItem);
-itemRouter.get("/get-by-id/:itemId", isAuth, getItemById);
 itemRouter.get("/delete/:itemId", isAuth, deleteItem);
-itemRouter.get("/get-by-city/:city", isAuth, getItemByCity);
-itemRouter.get("/get-by-shop/:shopId", isAuth, getItemsByShop);
-itemRouter.get("/search-items", isAuth, searchItems);
 
-
-
-
-module.exports = itemRouter
+module.exports = itemRouter;
