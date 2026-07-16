@@ -12,16 +12,16 @@ export const initializeSocket = (userId) => {
         });
 
         socket.on("connect", () => {
-            console.log("✅ Connected to socket server:", socket.id);
+            console.log(" Connected to socket server:", socket.id);
         });
 
         socket.on("disconnect", () => {
-            console.log("❌ Disconnected from socket server");
+            console.log(" Disconnected from socket server");
         });
     }
 
     return socket;
 };
 
-// ✅ Export the same socket instance for use across files
+// Export the same socket instance for use across files
 export { socket };

@@ -61,5 +61,24 @@ const getShopByCity = async (req, res) => {
     }
 }
 
+export const getAllShops = async (req, res) => {
+    try {
+      const shops = await Shop.find({})
+        .sort({ createdAt: -1 })
+        .lean();
+  
+      return res.status(200).json({
+        success: true,
+        shops,
+      });
+    } catch (error) {
+      console.error("Get all shops error:", error);
+  
+      return res.status(500).json({
+        success: false,
+        message: "Unable to get shops.",
+      });
+    }
+  };
 
 module.exports = { createAndEditShop, getMyShop, getShopByCity }

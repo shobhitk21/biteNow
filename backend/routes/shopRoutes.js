@@ -1,12 +1,13 @@
 const express = require('express');
 const shopRouter = express.Router()
 const { isAuth } = require('../middlewares/isAuth');
-const { createAndEditShop, getMyShop, getShopByCity } = require('../controllers/shopController');
+const { createAndEditShop, getMyShop, getShopByCity, getAllShops } = require('../controllers/shopController');
 const upload = require('../middlewares/multer');
 
 shopRouter.post("/create-edit", isAuth, upload.single("image"), createAndEditShop);
 shopRouter.get("/get-my", isAuth, getMyShop);
 shopRouter.get("/get-by-city/:city", isAuth, getShopByCity);
+shopRouter.get("/all",isAuth, getAllShops);
 
 
 module.exports = shopRouter

@@ -73,7 +73,6 @@ function App() {
         <Route path='/my-orders' element={userData ? <MyOrders /> : <Navigate to="/signin" />} />
         <Route path='/track-order/:orderId' element={userData ? <TrackOrderPage /> : <Navigate to="/signin" />} />
         <Route path='/shop/:shopId' element={userData ? <Shop /> : <Navigate to="/signin" />} />
-
       </Routes>
     </>
   )
